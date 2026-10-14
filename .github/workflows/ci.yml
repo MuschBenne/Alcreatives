@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        # public/media is ~600 MB of committed output; the checks never read it.
         with:
           fetch-depth: 1
 
@@ -23,4 +22,6 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run check
+      # Not `npm run check`: its tests need public/media, which is gitignored.
+      - run: npm run lint
+      - run: npx tsc --noEmit
