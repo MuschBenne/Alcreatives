@@ -1,0 +1,61 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# camera originals — the ingest source, never committed.
+# scripts/ingest-media.mjs reads from here and writes to public/media.
+/hemsida material/
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+!.env.example
+# NEXT_PUBLIC_* is inlined at build time and `npm run deploy` builds locally, so
+# the media origin has to be on disk for `next build` to see it. A public URL
+# with nothing secret in it; uncommitted, a fresh clone would deploy with media
+# pointed at nothing.
+!.env.production
+
+# cloudflare
+.open-next/
+.wrangler/
+.dev.vars
+# cloudflare-env.d.ts was here for `wrangler types`, which generated it. That
+# script is gone, and the one binding this Worker has is typed by hand in
+# worker-env.d.ts — tracked, because an ignored declaration file typechecks
+# locally and goes missing in CI.
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# portfolio copy: media lives in R2, not in git
+/public/media/**
+!/public/media/README.md

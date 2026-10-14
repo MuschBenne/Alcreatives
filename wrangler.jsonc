@@ -1,0 +1,42 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "alvin-hemsida",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-01-01",
+  // nodejs_compat: the Next server runs on Node APIs, not the edge runtime.
+  // global_fetch_strictly_public: makes fetch() inside the Worker behave like a
+  // fetch from the outside world, which is what Next's data fetching assumes.
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    // Everything prerendered plus public/, minus public/media: `npm run deploy`
+    // drops that folder because R2 serves it, so what is left here is under
+    // 10 MB. Requests answered from here are free and never touch the Worker.
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  // A rate limit that survives the isolate it is counted in.
+  //
+  // The counter in app/api/contact/route.ts is a Map in one Worker isolate, and
+  // Cloudflare runs many and discards them freely, so it is a speed bump rather
+  // than a limit. This binding counts in the runtime instead. The zone's own
+  // rate limiting rule sits in front of the Worker and, on the Free plan, can
+  // only count over ten seconds; here the period may be 60, which is the window
+  // that actually matches how a person uses a contact form.
+  //
+  // Counting is per Cloudflare location rather than global. One sender reaches
+  // one location, so it holds for the case this protects against: an accepted
+  // submission emails an address the sender chooses, from a verified domain.
+  //
+  // namespace_id is any positive integer, unique within the account. Two
+  // bindings sharing one share its counters.
+  "ratelimits": [
+    {
+      "name": "CONTACT_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 5, "period": 60 }
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

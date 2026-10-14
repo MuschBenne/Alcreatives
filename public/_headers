@@ -1,0 +1,15 @@
+# Cache rules for the static assets Cloudflare serves straight from the deploy.
+# https://developers.cloudflare.com/workers/static-assets/headers/
+
+# Content-hashed by the build — the filename changes whenever the bytes do,
+# so these can be held forever.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Dead as long as media is served from R2 — `npm run deploy` drops
+# .open-next/assets/media, so nothing here answers /media/* any more, and the
+# real caching headers are set per object at upload (a year, immutable, under a
+# versioned prefix). Kept as the safety net for a deploy that ships media again:
+# names are not content-hashed, so a re-ingest has to be able to reach people.
+/media/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800

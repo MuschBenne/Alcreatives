@@ -1,0 +1,26 @@
+name: check
+
+# Lint and typecheck on every push and pull request. Until now `tsc` only ran
+# in an editor, so a type error could reach main without anything objecting.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        # public/media is ~600 MB of committed output; the checks never read it.
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run check
